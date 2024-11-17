@@ -1,0 +1,41 @@
+name: Thor Software CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Clonar el repositorio
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      # Configurar Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Construir y ejecutar contenedores
+      - name: Build and Push Containers
+        run: |
+          docker-compose -f docker-compose.yml up --build -d
+
+      # Realizar pruebas
+      - name: Run Tests
+        run: |
+          docker-compose exec api pytest tests/
+
+      # Desplegar a servidor remoto
+      - name: Deploy to Remote Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.HOST }}
+        run: |
+          scp docker-compose.yml ubuntu@${{ secrets.HOST }}:/path/to/your/project
+          ssh ubuntu@${{ secrets.HOST }} "cd /path/to/your/project && docker-compose down && docker-compose up -d"
