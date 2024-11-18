@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+sqlalchemy[postgresql]
+psycopg2-binary
+passlib[bcrypt]
+python-jose
+pydantic
+pytest
+httpx
+PyJWT==2.8.0
+
+
